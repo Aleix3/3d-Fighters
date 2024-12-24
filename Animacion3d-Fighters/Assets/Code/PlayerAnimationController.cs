@@ -16,7 +16,12 @@ public class PlayerAnimationController : MonoBehaviour
 
     private void HandleInput()
     {
-        if (Input.GetKey(KeyCode.S) && Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.S) && Input.GetKeyDown(KeyCode.J))
+        {
+            PlayAnimation("SlowLowAttack");
+        }
+
+        else if (Input.GetKey(KeyCode.S) && Input.GetKeyDown(KeyCode.Space))
         {
             PlayAnimation("DodgeHighAttack");
         }
@@ -24,6 +29,11 @@ public class PlayerAnimationController : MonoBehaviour
         else if (Input.GetKey(KeyCode.S) && Input.GetKeyDown(KeyCode.J))
         {
             PlayAnimation("LowAttack");
+        }
+
+        else if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.J))
+        {
+            PlayAnimation("SlowAttack");
         }
 
         else if (Input.GetKeyDown(KeyCode.J))
