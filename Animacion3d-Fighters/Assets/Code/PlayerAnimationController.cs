@@ -45,6 +45,26 @@ public class PlayerAnimationController : MonoBehaviour
         {
             PlayAnimation("DodgeAttack");
         }
+
+        else if (Input.GetKeyDown(KeyCode.N))
+        {
+            PlayAnimation("Win");
+        }
+
+        else if (Input.GetKeyDown(KeyCode.M))
+        {
+            PlayAnimation("Lose");
+        }
+
+        else if (Input.GetKeyDown(KeyCode.A))
+        {
+            PlayAnimation("MoveLeft");
+        }
+
+        else if (Input.GetKeyDown(KeyCode.D))
+        {
+            PlayAnimation("MoveRight");
+        }
     }
 
     private void PlayAnimation(string animationTrigger)
