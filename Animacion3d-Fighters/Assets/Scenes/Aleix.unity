@@ -4643,7 +4643,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 0aa8bb43c493f0441b9854be2d82bac4, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
@@ -4663,6 +4663,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e39030e3435e841419de55f76ba10a2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!136 &218462061
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 218462057}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &218463736
 GameObject:
   m_ObjectHideFlags: 0
@@ -9882,6 +9905,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4f3d3dab9d80e7f4f9006b196c36a55a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 218462059}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4f3d3dab9d80e7f4f9006b196c36a55a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 218462061}
   m_SourcePrefab: {fileID: 100100000, guid: 4f3d3dab9d80e7f4f9006b196c36a55a, type: 3}
 --- !u!1 &444913803
 GameObject:
@@ -21473,7 +21499,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.7025618, z: -0, w: 0.7116228}
-  m_LocalPosition: {x: 6.58, y: 1, z: 3.16}
+  m_LocalPosition: {x: 9.774, y: 1, z: 6.912}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

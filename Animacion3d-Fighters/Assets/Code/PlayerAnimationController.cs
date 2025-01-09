@@ -56,12 +56,12 @@ public class PlayerAnimationController : MonoBehaviour
             PlayAnimation("Lose");
         }
 
-        else if (Input.GetKeyDown(KeyCode.A))
+        else if (Input.GetKey(KeyCode.A))
         {
             PlayAnimation("MoveLeft");
         }
 
-        else if (Input.GetKeyDown(KeyCode.D))
+        else if (Input.GetKey(KeyCode.D))
         {
             PlayAnimation("MoveRight");
         }
