@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerAnimationController : MonoBehaviour
 {
@@ -10,6 +12,9 @@ public class PlayerAnimationController : MonoBehaviour
     public BoxCollider slowAttackHitbox;
     public BoxCollider fastAttackHitbox;
     public BoxCollider lowAttackHitbox;
+    public GameObject gameOverCanvas;
+
+    public int playerId = 1; // Identificador del jugador (1 o 2)
 
     void Start()
     {
@@ -19,16 +24,37 @@ public class PlayerAnimationController : MonoBehaviour
     void Update()
     {
         HandleInput();
+
+        if (health <= 0)
+        {
+            
+            StartCoroutine(ShowGameOverCanvasWithDelay());
+        }
     }
+
+    private IEnumerator ShowGameOverCanvasWithDelay()
+    {
+        yield return new WaitForSeconds(5f);
+        gameOverCanvas.SetActive(true);
+    }
+
+
 
     private void HandleInput()
     {
-        float moveHorizontal = Input.GetAxis("Horizontal"); // Stick izquierdo para moverse
-        bool blockButton = Input.GetButton("Fire2");        // Botón Fire2 para bloquear
-        bool quickAttackButton = Input.GetButtonDown("Fire3"); // Botón Fire1 para ataque rápido
-        bool slowAttackButton = Input.GetButtonDown("Fire1");  // Botón Fire3 para ataque lento
-        bool downInput = Input.GetAxis("Vertical") < -0.5f; // Stick abajo
-        bool upInput = Input.GetAxis("Vertical") > 0.5f;    // Stick arriba
+        // Prefijo de entrada según el jugador
+        string horizontalAxis = $"Horizontal";
+        string verticalAxis = $"Vertical";
+        string blockButton = $"Fire2";
+        string quickAttackButton = $"Fire3";
+        string slowAttackButton = $"Fire1";
+
+        float moveHorizontal = Input.GetAxis(horizontalAxis); // Movimiento horizontal
+        bool block = Input.GetButton(blockButton);           // Botón de bloqueo
+        bool quickAttack = Input.GetButtonDown(quickAttackButton); // Botón de ataque rápido
+        bool slowAttack = Input.GetButtonDown(slowAttackButton);   // Botón de ataque lento
+        bool downInput = Input.GetAxis(verticalAxis) < -0.5f; // Stick abajo
+        bool upInput = Input.GetAxis(verticalAxis) > 0.5f;    // Stick arriba
 
         // Movimiento
         if (moveHorizontal > 0)
@@ -45,32 +71,33 @@ public class PlayerAnimationController : MonoBehaviour
         }
 
         // Esquivar y Evadir
-        if (downInput && blockButton)
+        if (downInput && Input.GetButtonDown(blockButton))
         {
             PlayAnimation("DodgeHighAttack");
         }
-        else if (upInput && blockButton)
+        else if (upInput && Input.GetButtonDown(blockButton))
         {
             PlayAnimation("DodgeAttack");
         }
 
+
         // Ataques
-        else if (downInput && quickAttackButton)
+        else if (downInput && quickAttack)
         {
             PlayAnimation("LowAttack");
             TriggerAttack("LowAttack", lowAttackHitbox);
         }
-        else if (downInput && slowAttackButton)
+        else if (downInput && slowAttack)
         {
             PlayAnimation("SlowLowAttack");
             TriggerAttack("SlowLowAttack", lowAttackHitbox);
         }
-        else if (quickAttackButton)
+        else if (quickAttack)
         {
             PlayAnimation("FastAttack");
             TriggerAttack("FastAttack", fastAttackHitbox);
         }
-        else if (slowAttackButton)
+        else if (slowAttack)
         {
             PlayAnimation("SlowAttack");
             TriggerAttack("SlowAttack", slowAttackHitbox);
@@ -129,5 +156,14 @@ public class PlayerAnimationController : MonoBehaviour
         if (slowAttackHitbox != null) slowAttackHitbox.enabled = false;
         if (fastAttackHitbox != null) fastAttackHitbox.enabled = false;
         if (lowAttackHitbox != null) lowAttackHitbox.enabled = false;
+    }
+
+    public void RestartGame()
+    {
+        // Obtener el nombre de la escena actual
+        string currentSceneName = SceneManager.GetActiveScene().name;
+
+        // Reiniciar la escena cargándola de nuevo
+        SceneManager.LoadScene(currentSceneName);
     }
 }
