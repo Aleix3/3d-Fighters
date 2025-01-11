@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+//using UnityEngine.SceneManager;
 
 public class PlayerAnimationController : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class PlayerAnimationController : MonoBehaviour
     public int health = 100; // Vida del jugador
     public GameObject opponent; // Referencia al oponente
     private bool isAttacking = false; // Para verificar si el ataque está activo
+    private bool hasWon = false; // Para verificar si este jugador ha ganado
 
     public BoxCollider slowAttackHitbox;
     public BoxCollider fastAttackHitbox;
@@ -23,13 +25,14 @@ public class PlayerAnimationController : MonoBehaviour
 
     void Update()
     {
-        HandleInput();
-
-        if (health <= 0)
+        if (health <= 0 && !hasWon)
         {
-            
+            // Si este jugador ha sido derrotado
             StartCoroutine(ShowGameOverCanvasWithDelay());
         }
+
+        CheckForVictory();
+        if (!hasWon) HandleInput(); // Solo permite entrada si el jugador no ha ganado
     }
 
     private IEnumerator ShowGameOverCanvasWithDelay()
@@ -38,7 +41,21 @@ public class PlayerAnimationController : MonoBehaviour
         gameOverCanvas.SetActive(true);
     }
 
+    private void CheckForVictory()
+    {
+        if (opponent != null)
+        {
+            PlayerAnimationController opponentController = opponent.GetComponent<PlayerAnimationController>();
 
+            if (opponentController != null && opponentController.health <= 0 && !hasWon)
+            {
+                // El oponente ha sido derrotado
+                hasWon = true;
+                animator.SetTrigger("Win"); // Activa la animación de victoria
+                Debug.Log($"{gameObject.name} ha ganado.");
+            }
+        }
+    }
 
     private void HandleInput()
     {
@@ -50,63 +67,59 @@ public class PlayerAnimationController : MonoBehaviour
         string slowAttackButton = $"Fire1";
 
         float moveHorizontal = Input.GetAxis(horizontalAxis); // Movimiento horizontal
+        float moveVertical = Input.GetAxis(verticalAxis);     // Movimiento vertical
         bool block = Input.GetButton(blockButton);           // Botón de bloqueo
         bool quickAttack = Input.GetButtonDown(quickAttackButton); // Botón de ataque rápido
         bool slowAttack = Input.GetButtonDown(slowAttackButton);   // Botón de ataque lento
-        bool downInput = Input.GetAxis(verticalAxis) < -0.5f; // Stick abajo
-        bool upInput = Input.GetAxis(verticalAxis) > 0.5f;    // Stick arriba
 
-        // Movimiento
+        // Movimiento horizontal
         if (moveHorizontal > 0)
         {
-            PlayAnimation("MoveRight");
+            animator.SetBool("MoveRight", true);
+            animator.SetBool("MoveLeft", false);
         }
         else if (moveHorizontal < 0)
         {
-            PlayAnimation("MoveLeft");
+            animator.SetBool("MoveLeft", true);
+            animator.SetBool("MoveRight", false);
         }
         else
         {
-            PlayAnimation("Idle");
+            animator.SetBool("MoveRight", false);
+            animator.SetBool("MoveLeft", false);
         }
 
-        // Esquivar y Evadir
-        if (downInput && Input.GetButtonDown(blockButton))
+        // Esquivar (movimiento vertical combinado con bloqueo)
+        if (moveVertical < -0.5f && Input.GetButtonDown(blockButton))
         {
-            PlayAnimation("DodgeHighAttack");
+            animator.SetTrigger("DodgeLow");
         }
-        else if (upInput && Input.GetButtonDown(blockButton))
+        else if (moveVertical > 0.5f && Input.GetButtonDown(blockButton))
         {
-            PlayAnimation("DodgeAttack");
+            animator.SetTrigger("DodgeHigh");
         }
-
 
         // Ataques
-        else if (downInput && quickAttack)
+        if (moveVertical < -0.5f && quickAttack)
         {
-            PlayAnimation("LowAttack");
+            animator.SetTrigger("LowAttack");
             TriggerAttack("LowAttack", lowAttackHitbox);
         }
-        else if (downInput && slowAttack)
+        else if (moveVertical < -0.5f && slowAttack)
         {
-            PlayAnimation("SlowLowAttack");
+            animator.SetTrigger("SlowLowAttack");
             TriggerAttack("SlowLowAttack", lowAttackHitbox);
         }
         else if (quickAttack)
         {
-            PlayAnimation("FastAttack");
+            animator.SetTrigger("FastAttack");
             TriggerAttack("FastAttack", fastAttackHitbox);
         }
         else if (slowAttack)
         {
-            PlayAnimation("SlowAttack");
+            animator.SetTrigger("SlowAttack");
             TriggerAttack("SlowAttack", slowAttackHitbox);
         }
-    }
-
-    private void PlayAnimation(string animationTrigger)
-    {
-        animator.SetTrigger(animationTrigger);
     }
 
     private void TriggerAttack(string attackTrigger, BoxCollider attackHitbox)
@@ -122,12 +135,20 @@ public class PlayerAnimationController : MonoBehaviour
         Invoke(nameof(ResetAttack), 0.5f); // Ajusta el tiempo según la duración de la animación
     }
 
+    private void ResetAttack()
+    {
+        isAttacking = false;
+
+        // Desactivar todas las hitboxes
+        if (slowAttackHitbox != null) slowAttackHitbox.enabled = false;
+        if (fastAttackHitbox != null) fastAttackHitbox.enabled = false;
+        if (lowAttackHitbox != null) lowAttackHitbox.enabled = false;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
-        // Comprueba si se golpea al oponente
         if (isAttacking && other.gameObject == opponent)
         {
-            // Quita toda la vida al oponente (solo para pruebas)
             PlayerAnimationController opponentController = opponent.GetComponent<PlayerAnimationController>();
             if (opponentController != null)
             {
@@ -143,27 +164,14 @@ public class PlayerAnimationController : MonoBehaviour
 
         if (health <= 0)
         {
-            PlayAnimation("Lose");
+            animator.SetTrigger("Lose");
             Debug.Log($"{gameObject.name} ha sido derrotado.");
         }
     }
 
-    private void ResetAttack()
-    {
-        isAttacking = false;
-
-        // Desactivar todas las hitboxes
-        if (slowAttackHitbox != null) slowAttackHitbox.enabled = false;
-        if (fastAttackHitbox != null) fastAttackHitbox.enabled = false;
-        if (lowAttackHitbox != null) lowAttackHitbox.enabled = false;
-    }
-
     public void RestartGame()
     {
-        // Obtener el nombre de la escena actual
         string currentSceneName = SceneManager.GetActiveScene().name;
-
-        // Reiniciar la escena cargándola de nuevo
         SceneManager.LoadScene(currentSceneName);
     }
 }
