@@ -15,7 +15,7 @@ ModelImporter:
     resampleCurves: 1
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
-    motionNodeName: 
+    motionNodeName: THOR_grp/rig_grp/rig_extra/rig_extra_2/body_grp
     rigImportErrors: 
     rigImportWarnings: 
     animationImportErrors: 
