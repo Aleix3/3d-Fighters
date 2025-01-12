@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PlayerAnimationController : MonoBehaviour
 {
@@ -33,20 +34,56 @@ public class PlayerAnimationController : MonoBehaviour
     private bool isCrouching = false;
     private bool isJumping = false;
 
+    public GameObject bar;
+    public Slider slider;
+
     void Start()
     {
         animator = GetComponent<Animator>();
+
+        //if (bar != null)
+        //{
+        //    // Hacer que 'bar' sea un hijo de este objeto
+        //    bar.transform.SetParent(this.transform);
+
+        //    // Opcional: Colocar 'bar' en la misma posición, rotación y escala
+        //    bar.transform.localPosition = Vector3.zero; // Posición relativa al padre
+        //    bar.transform.localRotation = Quaternion.identity; // Rotación relativa al padre
+        //    bar.transform.localScale = Vector3.one; // Escala relativa al padre
+        //}
     }
 
     void Update()
     {
         if (health <= 0 && !hasWon)
         {
+            slider.value = 0;
+
             StartCoroutine(ShowGameOverCanvasWithDelay());
         }
+        if (bar != null)
+        {
+            UpdateBarPosition();
+        }
+
 
         CheckForVictory();
         if (!hasWon) HandleInput();
+    }
+
+    private void UpdateBarPosition()
+    {
+        // Convertir la posición del jugador al espacio de pantalla
+        Vector3 screenPosition = Camera.main.WorldToScreenPoint(this.transform.position - new Vector3(0, -2.5f, 0));
+
+
+        // Actualizar la posición de la barra en el espacio del Canvas
+        RectTransform barRectTransform = bar.GetComponent<RectTransform>();
+        if (barRectTransform != null)
+        {
+            barRectTransform.position = screenPosition;
+
+        }
     }
 
     private IEnumerator ShowGameOverCanvasWithDelay()
@@ -101,8 +138,14 @@ public class PlayerAnimationController : MonoBehaviour
         {
             animator.SetBool("MoveRight", false);
             animator.SetBool("MoveLeft", false);
-            isWalking = false;
+
+            if (isWalking)
+            {
+                StopSound(walkingSound);
+                isWalking = false;
+            }
         }
+
 
         if (moveVertical < -0.5f && block && !isCrouching)
         {
@@ -211,4 +254,14 @@ public class PlayerAnimationController : MonoBehaviour
             audioSource.PlayOneShot(clip);
         }
     }
+
+    private void StopSound(AudioClip sound)
+    {
+        if (audioSource != null && sound != null)
+        {
+            audioSource.Stop();
+        }
+        
+    }
+
 }
