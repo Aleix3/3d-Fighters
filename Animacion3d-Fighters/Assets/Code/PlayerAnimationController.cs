@@ -37,20 +37,21 @@ public class PlayerAnimationController : MonoBehaviour
     public GameObject bar;
     public Slider slider;
 
+    // Nueva variable para bloquear el movimiento
+    private bool isMovementLocked = false;
+
+    // Referencia al botón de bloqueo desde el inspector
+    public Button lockMovementButton;
+
     void Start()
     {
         animator = GetComponent<Animator>();
 
-        //if (bar != null)
-        //{
-        //    // Hacer que 'bar' sea un hijo de este objeto
-        //    bar.transform.SetParent(this.transform);
-
-        //    // Opcional: Colocar 'bar' en la misma posición, rotación y escala
-        //    bar.transform.localPosition = Vector3.zero; // Posición relativa al padre
-        //    bar.transform.localRotation = Quaternion.identity; // Rotación relativa al padre
-        //    bar.transform.localScale = Vector3.one; // Escala relativa al padre
-        //}
+        // Si el botón está asignado, configurar el evento
+        if (lockMovementButton != null)
+        {
+            lockMovementButton.onClick.AddListener(ToggleLockMovement);
+        }
     }
 
     void Update()
@@ -58,17 +59,21 @@ public class PlayerAnimationController : MonoBehaviour
         if (health <= 0 && !hasWon)
         {
             slider.value = 0;
-
             StartCoroutine(ShowGameOverCanvasWithDelay());
         }
+
         if (bar != null)
         {
             UpdateBarPosition();
         }
 
-
         CheckForVictory();
-        if (!hasWon) HandleInput();
+
+        // Solo manejar entrada si el movimiento no está bloqueado
+        if (!hasWon && !isMovementLocked)
+        {
+            HandleInput();
+        }
     }
 
     private void UpdateBarPosition()
@@ -76,13 +81,11 @@ public class PlayerAnimationController : MonoBehaviour
         // Convertir la posición del jugador al espacio de pantalla
         Vector3 screenPosition = Camera.main.WorldToScreenPoint(this.transform.position - new Vector3(0, -2.5f, 0));
 
-
         // Actualizar la posición de la barra en el espacio del Canvas
         RectTransform barRectTransform = bar.GetComponent<RectTransform>();
         if (barRectTransform != null)
         {
             barRectTransform.position = screenPosition;
-
         }
     }
 
@@ -145,7 +148,6 @@ public class PlayerAnimationController : MonoBehaviour
                 isWalking = false;
             }
         }
-
 
         if (moveVertical < -0.5f && block && !isCrouching)
         {
@@ -261,7 +263,11 @@ public class PlayerAnimationController : MonoBehaviour
         {
             audioSource.Stop();
         }
-        
     }
 
+    // Método para alternar el bloqueo de movimiento del jugador
+    private void ToggleLockMovement()
+    {
+        isMovementLocked = !isMovementLocked;
+    }
 }
