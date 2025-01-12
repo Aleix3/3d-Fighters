@@ -144,7 +144,7 @@ public class PlayerAnimationController : MonoBehaviour
 
             if (isWalking)
             {
-                StopSound(walkingSound);
+                //StopSound(walkingSound);
                 isWalking = false;
             }
         }
